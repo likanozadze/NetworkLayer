@@ -11,7 +11,7 @@ public final class NetworkManager {
     
     public init() {}
     
-    public func fetchFact(completion: @escaping (Result<[catFact], Error>) -> Void) {
+    public func fetchFact(completion: @escaping (Result<[T], Error>) -> Void) {
         let urlStr = "https://catfact.ninja/facts?limit=20"
         
         guard let url = URL(string: urlStr) else {
