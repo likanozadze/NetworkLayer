@@ -4,11 +4,12 @@
 //
 //  Created by Lika Nozadze on 11/19/23.
 
-import UIKit
+import Foundation
 
 public final class NetworkManager {
+    public static let shared = NetworkManager()
 
-    public init() {}
+    private init() {}
 
     public func fetchData<T: Decodable>(from url: URL, responseType: T.Type, completion: @escaping (Result<T, Error>) -> Void) {
         URLSession.shared.dataTask(with: url) { data, response, error in
@@ -40,14 +41,14 @@ public final class NetworkManager {
         }.resume()
     }
 
-    public func downloadImage(from urlString: String, completion: @escaping (UIImage?) -> Void) {
+    public func downloadImage(from urlString: String, completion: @escaping (Data?) -> Void) {
         guard let url = URL(string: urlString) else {
             completion(nil)
             return
         }
 
         URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let data = data, error == nil, let image = UIImage(data: data) else {
+            guard let data = data, error == nil else {
                 DispatchQueue.main.async {
                     completion(nil)
                 }
@@ -55,7 +56,7 @@ public final class NetworkManager {
             }
 
             DispatchQueue.main.async {
-                completion(image)
+                completion(data)
             }
         }.resume()
     }
