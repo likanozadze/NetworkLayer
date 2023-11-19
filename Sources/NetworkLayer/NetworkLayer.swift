@@ -7,7 +7,7 @@
 import UIKit
 
 public final class NetworkManager<T: Decodable> {
-    static let shared = NetworkManager()
+public static let shared = NetworkManager()
 
     public init() {}
 
