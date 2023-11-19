@@ -6,12 +6,12 @@
 
 import UIKit
 
-public final class NetworkManager<T: Decodable> {
-public static let shared = NetworkManager()
+public final class NetworkManager {
+static let shared = NetworkManager()
 
     public init() {}
 
-    public func fetchData(from urlString: String, completion: @escaping (Result<T, Error>) -> Void) {
+    public func fetchData<T: Decodable>(from url: URL, responseType: T.Type, completion: @escaping (Result<T, Error>) -> Void) {
         guard let url = URL(string: urlString) else {
             completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])))
             return
