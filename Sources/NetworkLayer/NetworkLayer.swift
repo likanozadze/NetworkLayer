@@ -9,7 +9,7 @@ import Foundation
 public final class NetworkManager {
     public static let shared = NetworkManager()
 
-    private init() {}
+    public init() {}
 
     public func fetchData<T: Decodable>(from url: URL, responseType: T.Type, completion: @escaping (Result<T, Error>) -> Void) {
         URLSession.shared.dataTask(with: url) { data, response, error in
