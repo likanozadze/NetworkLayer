@@ -31,11 +31,15 @@ public final class NetworkManager {
         return data
     }
     
-    public func fetchData<T: Decodable>(fromURL urlString: String) async throws -> T {
-        let data = try await downloadData(fromURL: urlString)
-        return try decodeData(with: data)
+    public  func fetchData<T: Decodable>(fromURL urlString: String) async throws -> T {
+        do {
+            let data = try await downloadData(fromURL: urlString)
+            let decodedData: T = try await decodeData(with: data)
+            return decodedData
+        } catch {
+            throw error
+        }
     }
-
     private func decodeData<T: Decodable>(with data: Data) async throws -> T {
         do {
             let decoder = JSONDecoder()
