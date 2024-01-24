@@ -4,62 +4,38 @@
 //
 //  Created by Lika Nozadze on 11/19/23.
 
-import UIKit
-
-public enum NetworkError: Error {
-    case invalidURL
-    case invalidResponse
-    case invalidData
-}
-
-@available(iOS 13.0.0, *)
-
+import Foundation
 
 public final class NetworkManager {
     public static let shared = NetworkManager()
     
-    private init() {}
-    
-    private func downloadData(fromURL urlString: String) async throws -> Data {
-        guard let url = URL(string: urlString) else { throw NetworkError.invalidURL }
+    //MARK: - Methods
+    public func fetchData<T: Decodable>(with URLString: String, completion: @escaping (Result<T, Error>) -> Void) {
         
-        let (data, response) = try await URLSession.shared.data(from: url)
-        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-            throw NetworkError.invalidResponse
+        guard !URLString.isEmpty, let URL = URL(string: URLString) else {
+            completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])))
+            return
         }
         
-        return data
-    }
-    
-    public  func fetchData<T: Decodable>(fromURL urlString: String) async throws -> T {
-        do {
-            let data = try await downloadData(fromURL: urlString)
-            let decodedData: T = try await decodeData(with: data)
-            return decodedData
-        } catch {
-            throw error
-        }
-    }
-    private func decodeData<T: Decodable>(with data: Data) async throws -> T {
-        do {
-            let decoder = JSONDecoder()
-            let actor = try decoder.decode(T.self, from: data)
-            return actor
-            
-        } catch {
-            throw NetworkError.invalidData
-        }
-    }
-    
-    public func fetchImage(fromURl urlString: String) async throws -> UIImage {
-        do {
-            let data = try await downloadData(fromURL: urlString)
-            guard let image = UIImage(data: data) else {
-                throw NetworkError.invalidData
+        URLSession.shared.dataTask(with: URL) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
             }
-            return image
-        } catch {
-            throw error
-        }
+            
+            guard let data = data else {
+                completion(.failure(NSError(domain: "", code: -2, userInfo: [NSLocalizedDescriptionKey: "No data received"])))
+                return
+            }
+            
+            do {
+                let dataResponse = try JSONDecoder().decode(T.self, from: data)
+                DispatchQueue.main.async {
+                    completion(.success(dataResponse))
+                }
+            } catch {
+                completion(.failure(error))
+            }
+        }.resume()
     }
 }
