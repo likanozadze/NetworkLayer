@@ -6,7 +6,7 @@
 
 import Foundation
 
-enum NetworkError: Error {
+public enum NetworkError: Error {
     case invalidURL
     case invalidData
 }
@@ -16,7 +16,7 @@ public final class NetworkManager {
     
     // MARK: - Methods
     
-    private func fetchData<T: Decodable>(with urlString: String, completion: @escaping (Result<T, NetworkError>) -> Void) {
+    public func fetchData<T: Decodable>(with urlString: String, completion: @escaping (Result<T, NetworkError>) -> Void) {
         
         guard !urlString.isEmpty, let url = URL(string: urlString) else {
             completion(.failure(.invalidURL))
