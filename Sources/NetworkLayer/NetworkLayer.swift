@@ -6,25 +6,31 @@
 
 import Foundation
 
+enum NetworkError: Error {
+    case invalidURL
+    case invalidData
+}
+
 public final class NetworkManager {
     public static let shared = NetworkManager()
     
-    //MARK: - Methods
-    public func fetchData<T: Decodable>(with URLString: String, completion: @escaping (Result<T, Error>) -> Void) {
+    // MARK: - Methods
+    
+    private func fetchData<T: Decodable>(with urlString: String, completion: @escaping (Result<T, NetworkError>) -> Void) {
         
-        guard !URLString.isEmpty, let URL = URL(string: URLString) else {
-            completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])))
+        guard !urlString.isEmpty, let url = URL(string: urlString) else {
+            completion(.failure(.invalidURL))
             return
         }
         
-        URLSession.shared.dataTask(with: URL) { data, response, error in
+        URLSession.shared.dataTask(with: url) { data, response, error in
             if let error = error {
-                completion(.failure(error))
+                completion(.failure(.invalidData))
                 return
             }
             
             guard let data = data else {
-                completion(.failure(NSError(domain: "", code: -2, userInfo: [NSLocalizedDescriptionKey: "No data received"])))
+                completion(.failure(.invalidData))
                 return
             }
             
@@ -34,7 +40,7 @@ public final class NetworkManager {
                     completion(.success(dataResponse))
                 }
             } catch {
-                completion(.failure(error))
+                completion(.failure(.invalidData))
             }
         }.resume()
     }
