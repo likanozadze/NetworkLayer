@@ -19,7 +19,7 @@ public final class NetworkManager {
     
     // MARK: - Methods
     
-    func request<T: Decodable>(baseURL: String, apiKey: String, endpoint: String, parameters: [String: Any], completion: @escaping (Result<T, NetworkError>) -> Void) {
+    public func request<T: Decodable>(baseURL: String, apiKey: String, endpoint: String, parameters: [String: Any], completion: @escaping (Result<T, NetworkError>) -> Void) {
          guard var urlComponents = URLComponents(string: baseURL + endpoint) else {
              completion(.failure(.invalidURL))
              return
