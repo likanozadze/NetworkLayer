@@ -4,7 +4,7 @@
 //
 //  Created by Lika Nozadze on 11/19/23.
 
-import Foundation
+import UIKit
 
 public enum NetworkError: Error {
     case invalidURL
@@ -59,4 +59,33 @@ public final class NetworkManager {
              }
          }.resume()
      }
- }
+    public func downloadImage(
+           from urlString: String,
+           completion: @escaping (Result<UIImage, NetworkError>) -> Void
+       ) {
+           guard let url = URL(string: urlString) else {
+               completion(.failure(.invalidURL))
+               return
+           }
+
+           URLSession.shared.dataTask(with: url) { data, response, error in
+               if let error = error {
+                   completion(.failure(.networkError(error)))
+                   return
+               }
+
+               guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+                   completion(.failure(.invalidResponse))
+                   return
+               }
+
+               guard let data = data, let image = UIImage(data: data) else {
+                   completion(.failure(.invalidData))
+                   return
+               }
+
+               completion(.success(image))
+           }.resume()
+       }
+   }
+ 
