@@ -16,6 +16,7 @@ public enum NetworkError: Error {
 
 public final class NetworkManager {
     public static let shared = NetworkManager()
+    private var imageCache = NSCache<NSString, UIImage>()
     
     // MARK: - Methods
     
@@ -63,12 +64,19 @@ public final class NetworkManager {
            from urlString: String,
            completion: @escaping (Result<UIImage, NetworkError>) -> Void
        ) {
+           let cacheKey = NSString(string: urlString)
+           if let cachedImage = imageCache.object(forKey: cacheKey) {
+                      completion(.success(cachedImage))
+                      return
+                  }
+
            guard let url = URL(string: urlString) else {
                completion(.failure(.invalidURL))
                return
            }
 
-           URLSession.shared.dataTask(with: url) { data, response, error in
+           URLSession.shared.dataTask(with: url) { [weak self]  data, response, error in
+               guard let self = self else { return }
                if let error = error {
                    completion(.failure(.networkError(error)))
                    return
@@ -83,7 +91,8 @@ public final class NetworkManager {
                    completion(.failure(.invalidData))
                    return
                }
-
+               self.imageCache.setObject(image, forKey: cacheKey)
+               
                completion(.success(image))
            }.resume()
        }
