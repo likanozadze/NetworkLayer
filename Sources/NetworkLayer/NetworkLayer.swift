@@ -16,7 +16,7 @@ public enum NetworkError: Error {
 
 public final class NetworkManager {
     public static let shared = NetworkManager()
-    private var imageCache = NSCache<NSString, UIImage>()
+    var imageCache = NSCache<NSString, UIImage>()
     
     // MARK: - Methods
     
